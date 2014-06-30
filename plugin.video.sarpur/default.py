@@ -27,9 +27,17 @@ try:
     elif action_key == 'view_channel_category_show':
         actions.channel_category_show(action_value, name)
     elif action_key == 'play':
-        actions.play(action_value, name)
+        actions.play_video(action_value, name)
     elif action_key == 'view_tab':
         actions.tab_index(action_value)
+    elif action_key == 'view_podcast_index':
+        actions.podcast_index()
+    elif action_key =='view_podcast_show':
+        actions.podcast_show(action_value, name)
+    elif action_key == 'play_podcast':
+        actions.play_podcast(action_value)
+    elif action_key == 'play_live':
+        actions.play_live_stream(action_value)
     else:
 
         print "Action: {0}, Value: {1}, Name: {2}".format(action_key, action_value, name)

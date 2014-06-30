@@ -115,6 +115,44 @@ def get_tab_items(url):
 
     return episodes
 
+def get_podcast_shows():
+    """Gets the names and rss urls of all the Podcasts"""
+    doc = get_document("http://www.ruv.is/podcast")
+    shows = []
+
+    for show in doc.xpath("//ul[@class='hladvarp-info']"):
+        title = show.xpath('li/h4')[0].text
+        url = show.xpath("li/a[contains(@href,'http')]")[0].attrib.get('href')
+        shows.append((title, url))
+
+    return shows
+
+def get_podcast_episodes(url):
+    """Gets the items from the rss feed"""
+    doc = get_document(url)
+    episodes = []
+
+    for item in doc.findall("//guid"):
+        url = item.text
+        for el in item.itersiblings():
+            if el.tag == 'pubdate':
+                date = el.text
+
+        #date = item.xpath('pubdate')[0].text
+        #url = item.xpath('guid')[0].text
+        episodes.append((date,url))
+
+    return episodes
+
+def get_live_url(channel='ruv'):
+    page_urls = {
+        'ruv': "http://ruv.is/ruv"
+        }
+
+    doc = get_document(page_urls.get(channel))
+    return doc.xpath("//div[@id='spilarinn']/video/source")[0].attrib['src']
+
+
 if __name__ == '__main__':
     None
     #print get_episodes('')

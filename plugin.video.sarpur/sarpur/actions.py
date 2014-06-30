@@ -4,6 +4,7 @@
 
 import sarpur
 import scraper
+import util.player as player
 from sarpur.cached import Categories
 from util.gui import GUI
 
@@ -23,8 +24,11 @@ def index():
         title = '{0} Þættir'.format(channel['name'].encode('utf-8'))
         gui.addDir(title, 'view_channel_index', i)
 
-    gui.addDir('Hlaðvarp', 'hladvarp', '')
-    gui.addDir('Bein úttsending RÚV', 'play_live', 'ruv')
+    gui.addDir('Hlaðvarp', 'view_podcast_index', '')
+    gui.addItem('Bein úttsending: RÚV', 'play_live', 'ruv')
+    gui.addItem('Bein úttsending: RÁS 1', 'play_live', 'ras1')
+    gui.addItem('Bein úttsending: RÁS 2', 'play_live', 'ras2')
+    gui.addItem('Bein úttsending: RONDÓ', 'play_live', 'rondo')
 
 def channel_index(channel):
     for i, category in enumerate(cats.showtree[channel].get('categories')):
@@ -49,9 +53,17 @@ def channel_category_show(url, show_name):
             name = "{0} - {1}".format(show_name, episode_name.encode('utf-8'))
             gui.addItem(name, 'play', url)
 
-def play(url, name):
+def play_video(url, name):
     (playpath, rtmp_url, swfplayer) = scraper.get_stream_info(url)
-    gui.play(playpath, swfplayer, rtmp_url, url, name)
+    player.play_stream(playpath, swfplayer, rtmp_url, url, name)
+
+def play_podcast(url):
+    player.play(url)
+
+def play_live_stream(name):
+    #url = scraper.get_live_url(name)
+    url = sarpur.LIVE_URLS.get(name)
+    player.play(url)
 
 def tab_index(url):
     pageurl = 'http://www.ruv.is{0}'.format(url)
@@ -64,3 +76,13 @@ def tab_index(url):
             episode_name, url = episode
             gui.addItem(episode_name.encode('utf-8'), 'play', url.encode('utf-8'))
 
+def podcast_index():
+    for show in scraper.get_podcast_shows():
+        name, url = show
+        gui.addDir(name.encode('utf-8'), 'view_podcast_show', url)
+
+def podcast_show(url, name):
+    for recording in scraper.get_podcast_episodes(url):
+        date, url = recording
+        title = "{0} - {1}".format(name, date.encode('utf-8'))
+        gui.addItem(title, 'play_podcast', url.encode('utf-8'))

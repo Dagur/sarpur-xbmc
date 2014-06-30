@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: UTF-8
 
-import xbmc, xbmcgui, xbmcplugin
+import xbmcgui, xbmcplugin
 from urllib import quote_plus as quote
 
 class GUI(object):
@@ -37,10 +37,4 @@ class GUI(object):
     def infobox(self, title, message):
         xbmcgui.Dialog().ok(title, message)
 
-    def play(self, playpath, sfwplayer, rtmp_url, url, name):
-        item = xbmcgui.ListItem(name)
-        item.setProperty("PlayPath", playpath)
-        item.setProperty("SWFPlayer", sfwplayer)
-        item.setProperty("PageURL", url)
-        xbmc.Player().play(rtmp_url, item)
 
