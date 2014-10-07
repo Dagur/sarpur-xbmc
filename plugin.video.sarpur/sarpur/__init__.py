@@ -4,7 +4,7 @@
 import sys
 import xbmcaddon
 
-ALWAYS_REFRESH = False
+ALWAYS_REFRESH = True
 LOGGING_ENABLED = True
 
 BASE_URL = sys.argv[0]

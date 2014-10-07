@@ -20,28 +20,25 @@ class Categories(object):
             delta = datetime.now() - datetime.fromtimestamp(last_modified)
 
             if sarpur.ALWAYS_REFRESH or delta.days > 0:
-                showtree = self.update_showtree()
-                tabs = self.update_tabs()
+                self.update_showtree()
+                self.update_tabs()
             else:
-                tabs = json.load(file(TABFILE_LOCATION, 'rb'))
-                showtree = json.load(file(SHOWTREEFILE_LOCATION, 'rb'))
+                self.tabs = json.load(file(TABFILE_LOCATION, 'rb'))
+                self.showtree = json.load(file(SHOWTREEFILE_LOCATION, 'rb'))
 
         except OSError:
             if not os.path.exists(DATA_PATH):
                 os.makedirs(DATA_PATH)
-            showtree = self.update_showtree()
-            tabs = self.update_tabs()
+            self.update_showtree()
+            self.update_tabs()
         except IOError:
             try:
                 os.unlink(SHOWTREEFILE_LOCATION)
                 os.unlink(TABFILE_LOCATION)
             except OSError:
                 None
-            showtree = self.update_showtree()
-            tabs = self.update_tabs()
-
-        self.tabs = tabs
-        self.showtree = showtree
+            self.update_showtree()
+            self.update_tabs()
 
     def update_tabs(self):
         "populate latest_groups"
