@@ -1,18 +1,22 @@
 #!/usr/bin/env python
 # encoding: UTF-8
 
-import xbmc, xbmcgui
+import xbmc
+import xbmcgui
 
-def play(url):
+
+def play(url, name):
     """
     .. py:function:: play(url)
 
     Play audio or video on a given url"
 
-    :param url:
+    :param url: Full url of the video
+    :param name: Stream name
     """
 
-    xbmc.Player().play(url)
+    xbmc.Player().play(url, xbmcgui.ListItem(name))
+
 
 def play_stream(playpath, sfwplayer, rtmp_url, url, name):
     """
