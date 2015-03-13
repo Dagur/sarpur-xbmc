@@ -3,7 +3,6 @@
 import json
 
 import sarpur
-import time
 from sarpur import scraper
 import util.player as player
 from util.gui import GUI
@@ -29,7 +28,7 @@ def index():
     #INTERFACE.add_item('Bein útsending RÁS 1', 'play_live', 'ras1')
     #INTERFACE.add_item('Bein útsending RÁS 2', 'play_live', 'ras2')
     #INTERFACE.add_item('Bein útsending Rondó', 'play_live', 'rondo')
-    #INTERFACE.add_dir(u'Hlaðvarp', 'view_podcast_index', '')
+    INTERFACE.add_dir(u'Hlaðvarp', 'view_podcast_index', '')
 
 
 def play_url(url, name):
@@ -62,14 +61,14 @@ def play_video(file, name):
     player.play(url, name)
 
 
-def play_podcast(url):
+def play_podcast(url, name):
     """
     Plays podcast
 
     :param url: The file url (this can be any file that xbmc can play)
     """
 
-    player.play(url)
+    player.play(url, name)
 
 
 def play_live_stream(category_id, name):
@@ -93,12 +92,7 @@ def view_category(category_id, date_string):
         date = datetime.today()
 
     if format:
-        try:
-            date = datetime.strptime(date_string, format)
-        except TypeError:
-            # Bugfix for bug that doesn't make sense
-            # http://forum.kodi.tv/showthread.php?tid=112916
-            date = datetime(*(time.strptime(date_string, format)[0:6]))
+        date = scraper.strptime(date_string, format)
 
     url = "http://www.ruv.is/sarpur/app/json/{0}/{1}".format(category_id, date.strftime("%Y%m%d"))
     shows = json.loads(requests.get(url).content)
@@ -117,7 +111,7 @@ def view_category(category_id, date_string):
         showtime = datetime.fromtimestamp(float(ev['start_time']))
         end_time = datetime.fromtimestamp(float(ev['end_time']))
         in_progress = showtime < datetime.now() < end_time
-        duration = unicode(end_time - showtime)[2:4]
+        duration = (end_time - showtime).seconds / 60
 
         title = u"{1} - {0}".format(
             ev['title'],
@@ -181,8 +175,12 @@ def podcast_index():
     List all the podcasts.
     """
     for show in scraper.get_podcast_shows(sarpur.PODCAST_URL):
-        name, url = show
-        INTERFACE.add_dir(name.encode('utf-8'), 'view_podcast_show', url)
+        INTERFACE.add_dir(show['name'],
+                           'view_podcast_show',
+                           show['url'],
+                           iconimage=show['img'])
+
+
 
 
 def podcast_show(url, name):
@@ -193,6 +191,7 @@ def podcast_show(url, name):
     :param name: The name of the show
     """
     for recording in scraper.get_podcast_episodes(url):
-        date, url = recording
-        title = "{0} - {1}".format(name, date.encode('utf-8'))
-        INTERFACE.add_item(title, 'play_podcast', url.encode('utf-8'))
+        INTERFACE.add_item(recording['title'],
+                           'play_podcast',
+                           recording['url'],
+                           extra_info=recording)

@@ -32,7 +32,7 @@ try:
     elif action_key == 'view_podcast_show':
         actions.podcast_show(action_value, name)
     elif action_key == 'play_podcast':
-        actions.play_podcast(action_value)
+        actions.play_podcast(action_value, name)
     elif action_key == 'play_live':
         actions.play_live_stream(action_value, name)
     else:

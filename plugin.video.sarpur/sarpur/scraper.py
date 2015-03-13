@@ -2,8 +2,18 @@
 # encoding: UTF-8
 
 import requests
+import time
 from bs4 import BeautifulSoup
+from datetime import datetime
 
+
+def strptime(date_string, format):
+    try:
+        return datetime.strptime(date_string, format)
+    except TypeError:
+        # Bugfix for bug that doesn't make sense
+        # http://forum.kodi.tv/showthread.php?tid=112916
+        return datetime(*(time.strptime(date_string, format)[0:6]))
 
 def get_document(url):
     """
@@ -42,14 +52,18 @@ def get_podcast_shows(url):
 
     """
     doc = get_document(url)
-    shows = []
 
-    for show in doc.select("ul .hladvarp-info"):
-        title = show.select('li h4')[0].text
-        show_url = show.select("li a[href*=http]")[0].get('href')
-        shows.append((title, show_url))
+    #doc = BeautifulSoup(file('/home/dagur/PycharmProjects/sarpur-xbmc/plugin.video.sarpur/hladvarp.htm'), "html.parser")
 
-    return shows
+    return (
+        {
+            'img': show.find("img", title=u"Mynd með færslu")['srcset'],
+            # 'show_url': show.find("strong").a['href'],
+            'name': show.find("strong").a.text,
+            'url': show.find_next_sibling().find("a", class_="button pad0 pad1t")['href']
+        }
+        for show in doc.find_all("div", class_="views-field views-field-nothing")
+    )
 
 
 def get_podcast_episodes(url):
@@ -60,12 +74,44 @@ def get_podcast_episodes(url):
     :return a list of 2-tuples with airdate and media url
 
     """
+    def parse_pubdate(date_string):
+        date = None
+        try:
+            return strptime(date_string, '%a, %d %b %Y %H:%M:%S +0000')
+        except ValueError:
+            pass
+
+        try:
+            return strptime(date_string, '%a, %d %b %Y')
+        except ValueError:
+            pass
+
+        try:
+            return strptime(date_string, '%a, %d %b %Y%H:%M:%S +0000')
+        except ValueError:
+            pass
+
+        try:
+            return strptime(date_string, '%a, %d %b %Y %H:%M')
+        except ValueError:
+            pass
+
+        try:
+            return strptime(date_string, '%a, %d %b %Y %H.%M')
+        except ValueError:
+            pass
+
+        return datetime.fromtimestamp(0)
+
     doc = get_document(url)
-    episodes = []
 
-    for item in doc.find_all("guid"):
-        url = item.text
-        date = item.select('~ pubdate')[0].text
-        episodes.append((date, url))
-
-    return episodes
+    return (
+        {
+            'url': item.select('guid')[0].text,
+            'Premiered': parse_pubdate(item.select('pubdate')[0].text.decode('iso-8859-1')).strftime("%d.%m.%Y"),
+            'Duration': item.find('itunes:duration').text.split(':')[0],
+            'title': item.title.text,
+            'Plot': item.description.text
+        }
+        for item in doc.find_all("item")
+    )

@@ -36,7 +36,7 @@ class GUI(object):
         format_params = {
             "base_url": self.base_url,
             "key": quote(action_key),
-            "value": quote(action_value),
+            "value": quote(action_value.encode('utf-8')),
             "name": quote(name.encode('utf-8'))
         }
 
