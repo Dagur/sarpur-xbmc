@@ -8,18 +8,25 @@ from datetime import datetime
 
 
 def strptime(date_string, format):
+    """
+    Wrapper for datetime.strptime() because of an odd bug.
+    See: http://forum.kodi.tv/showthread.php?tid=112916
+
+    :param date_string: A string representing a date
+    :param format: The format of the date
+    :return: A datetime object
+    """
     try:
         return datetime.strptime(date_string, format)
     except TypeError:
-        # Bugfix for bug that doesn't make sense
-        # http://forum.kodi.tv/showthread.php?tid=112916
         return datetime(*(time.strptime(date_string, format)[0:6]))
+
 
 def get_document(url):
     """
     Downloads url and returns a BeautifulSoup object
 
-    :param url: An url
+    :param url: Any url
     :return BeautifulSoup "document"
     """
     req = requests.get(url)
@@ -36,7 +43,10 @@ def get_media_url(page_url):
     """
 
     doc = get_document(page_url)
-    sources = [tag['jw-src'] for tag in doc.find_all('source') if tag.has_attr('jw-src')]
+    sources = [tag['jw-src']
+               for tag in doc.find_all('source')
+               if tag.has_attr('jw-src')]
+
     if len(sources) == 0:
         return -1
 
@@ -48,17 +58,13 @@ def get_podcast_shows(url):
     Gets the names and rss urls of all the podcasts (shows)
 
     :param url: The url to the podcast index
-    :return A list of 2-tuples with show name and rss url
-
+    :return A generator of dictionaries
     """
     doc = get_document(url)
-
-    #doc = BeautifulSoup(file('/home/dagur/PycharmProjects/sarpur-xbmc/plugin.video.sarpur/hladvarp.htm'), "html.parser")
 
     return (
         {
             'img': show.find("img", title=u"Mynd með færslu")['srcset'],
-            # 'show_url': show.find("strong").a['href'],
             'name': show.find("strong").a.text,
             'url': show.find_next_sibling().find("a", class_="button pad0 pad1t")['href']
         }
@@ -70,38 +76,39 @@ def get_podcast_episodes(url):
     """
     Gets the items from the rss feed
 
-    :param url: Get all the playable items in podcast rss
-    :return a list of 2-tuples with airdate and media url
+    :param url: RSS URL
+    :return a generator of dictionaries
 
     """
+
     def parse_pubdate(date_string):
+        """
+        Change pubdate string to datetime object. Tries a bunch of
+        possible formats, but if none of them is a match, it will
+        return a epoch = 0 datetime object
+
+        :param date_string: A string representing a date
+        :return: datetime object
+        """
+        date_formats = (
+            '%a, %d %b %Y %H:%M:%S +0000',
+            '%a, %d %b %Y',
+            '%a, %d %b %Y%H:%M:%S +0000',
+            '%a, %d %b %Y %H:%M',
+            '%a, %d %b %Y %H.%M'
+        )
+        df_generator = (format for format in date_formats)
+
         date = None
-        try:
-            return strptime(date_string, '%a, %d %b %Y %H:%M:%S +0000')
-        except ValueError:
-            pass
+        while date == None:
+            try:
+                date = strptime(date_string, df_generator.next())
+            except ValueError:
+                pass
+            except StopIteration:
+                date = datetime.fromtimestamp(0)
 
-        try:
-            return strptime(date_string, '%a, %d %b %Y')
-        except ValueError:
-            pass
-
-        try:
-            return strptime(date_string, '%a, %d %b %Y%H:%M:%S +0000')
-        except ValueError:
-            pass
-
-        try:
-            return strptime(date_string, '%a, %d %b %Y %H:%M')
-        except ValueError:
-            pass
-
-        try:
-            return strptime(date_string, '%a, %d %b %Y %H.%M')
-        except ValueError:
-            pass
-
-        return datetime.fromtimestamp(0)
+        return date
 
     doc = get_document(url)
 

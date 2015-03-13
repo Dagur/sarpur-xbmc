@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 # encoding: UTF-8
-import json
 
+import json
 import sarpur
+import requests
 from sarpur import scraper
 import util.player as player
 from util.gui import GUI
 from datetime import datetime, timedelta
-import requests
-import xbmcgui
 
 INTERFACE = GUI(sarpur.ADDON_HANDLE, sarpur.BASE_URL)
 
@@ -24,7 +23,7 @@ def index():
     INTERFACE.add_dir(u'RÁS 2', 'view_category', '3')
     INTERFACE.add_dir(u'Rondó', 'view_category', 'rondo')
     INTERFACE.add_dir(u'Krakkasarpurinn', 'view_category', 'born')
-    #INTERFACE.add_item('Bein útsending RÚV', 'play_live', 'ruv')
+    # INTERFACE.add_item('Bein útsending RÚV', 'play_live', 'ruv')
     #INTERFACE.add_item('Bein útsending RÁS 1', 'play_live', 'ras1')
     #INTERFACE.add_item('Bein útsending RÁS 2', 'play_live', 'ras2')
     #INTERFACE.add_item('Bein útsending Rondó', 'play_live', 'rondo')
@@ -33,39 +32,41 @@ def index():
 
 def play_url(url, name):
     """
-    Plays videos (and audio) other than live streams and podcasts.
+    Play media on page (scrapes it to find it)
 
     :param url: The page url
-    :param name: The name of the item to play
+    :param name: Text to display in media player
     """
     video_url = scraper.get_media_url(url)
     if video_url == -1:
-        GUI.infobox(u"Vesen", u"Fann ekki upptöku")
+        GUI.info_box(u"Vesen", u"Fann ekki upptöku")
     else:
         player.play(video_url, name)
 
 
 def play_video(file, name):
     """
+    Play video give only the filename
 
-    :param url:
-    :param name:
+    :param file: Media filename
+    :param name: Text to display in media player
     :return:
     """
-    url =  u"http://smooth.ruv.cache.is/opid/{0}".format(file)
+    url = u"http://smooth.ruv.cache.is/opid/{0}".format(file)
     r = requests.head(url)
 
     if r.status_code != 200:
-        url =  u"http://smooth.ruv.cache.is/lokad/{0}".format(file)
+        url = u"http://smooth.ruv.cache.is/lokad/{0}".format(file)
 
     player.play(url, name)
 
 
 def play_podcast(url, name):
     """
-    Plays podcast
+    Plays podcast (or any media really
 
-    :param url: The file url (this can be any file that xbmc can play)
+    :param url: Direct url to the media
+    :param name: Text to display in media player
     """
 
     player.play(url, name)
@@ -75,13 +76,20 @@ def play_live_stream(category_id, name):
     """
     Play one of the live streams.
 
-    :param category_id: The name of the stream (defined in LIVE_URLS in __init__.py)
+    :param category_id: The channel/radio station id (see index())
+    :param name: Text to display in media player
     """
     url = sarpur.LIVE_URLS.get(category_id)
     player.play(url, name)
 
 
 def view_category(category_id, date_string):
+    """
+    Display the available media in category
+
+    :param category_id: The channel/radio station id (see index())
+    :param date_string: Display media at this date. Format is %Y%m%d
+    """
 
     if date_string.startswith('<<'):
         format = "<< %d.%m.%Y"
@@ -141,33 +149,21 @@ def view_category(category_id, date_string):
             INTERFACE.add_item(title,
                                'play_live',
                                category_id,
-                               iconimage=ev.get('picture'),
+                               image=ev.get('picture'),
                                extra_info=meta)
 
         elif ev.get('media'):
             INTERFACE.add_item(title,
                                'play_file',
                                ev.get('media'),
-                               iconimage=ev.get('picture'),
+                               image=ev.get('picture'),
                                extra_info=meta)
         else:
             INTERFACE.add_item(title,
                                'play_url',
                                ev.get('url'),
-                               iconimage=ev.get('picture'),
+                               image=ev.get('picture'),
                                extra_info=meta)
-
-def view_group(rel_url):
-    """
-    List items on one of the groups (flokkur tab) on sarpurinn.
-
-    :param rel_url: Relative url to the flokkur
-
-    """
-    full_url = 'http://www.ruv.is/sarpurinn{0}'.format(rel_url)
-    for video in scraper.get_videos(full_url):
-        name, url = video
-        INTERFACE.add_item(name.encode('utf-8'), 'play', url.encode('utf-8'))
 
 
 def podcast_index():
@@ -176,18 +172,16 @@ def podcast_index():
     """
     for show in scraper.get_podcast_shows(sarpur.PODCAST_URL):
         INTERFACE.add_dir(show['name'],
-                           'view_podcast_show',
-                           show['url'],
-                           iconimage=show['img'])
-
-
+                          'view_podcast_show',
+                          show['url'],
+                          image=show['img'])
 
 
 def podcast_show(url, name):
     """
-    List all the recordings for a podcast show.
+    List all the recordings in a podcast.
 
-    :param url: The podcast url (xml file)
+    :param url: The podcast url (xml/rss file)
     :param name: The name of the show
     """
     for recording in scraper.get_podcast_episodes(url):

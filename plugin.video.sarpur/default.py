@@ -3,17 +3,13 @@
 
 import sys
 import urlparse
-
 import sarpur
 import xbmcplugin
 from sarpur import actions, logger
 
-
 xbmcplugin.setContent(sarpur.ADDON_HANDLE, 'episodes')
 
 params = dict(urlparse.parse_qsl(sys.argv[2][1:]))
-print sys.argv[2]
-print params
 action_key = params.get("action_key")
 action_value = params.get("action_value")
 name = params.get("name")
@@ -36,7 +32,6 @@ try:
     elif action_key == 'play_live':
         actions.play_live_stream(action_value, name)
     else:
-
         logger.log("Action: {0}, Value: {1}, Name: {2}".format(
             action_key, action_value, name))
 
