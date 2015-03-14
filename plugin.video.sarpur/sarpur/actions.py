@@ -4,7 +4,7 @@
 import json
 import sarpur
 import requests
-from sarpur import scraper
+from sarpur import scraper, logger
 import util.player as player
 from util.gui import GUI
 from datetime import datetime, timedelta
@@ -23,11 +23,8 @@ def index():
     INTERFACE.add_dir(u'RÁS 2', 'view_category', '3')
     INTERFACE.add_dir(u'Rondó', 'view_category', 'rondo')
     INTERFACE.add_dir(u'Krakkasarpurinn', 'view_category', 'born')
-    # INTERFACE.add_item('Bein útsending RÚV', 'play_live', 'ruv')
-    #INTERFACE.add_item('Bein útsending RÁS 1', 'play_live', 'ras1')
-    #INTERFACE.add_item('Bein útsending RÁS 2', 'play_live', 'ras2')
-    #INTERFACE.add_item('Bein útsending Rondó', 'play_live', 'rondo')
     INTERFACE.add_dir(u'Hlaðvarp', 'view_podcast_index', '')
+    INTERFACE.add_dir(u'Leita', 'search', '')
 
 
 def play_url(url, name):
@@ -189,3 +186,16 @@ def podcast_show(url, name):
                            'play_podcast',
                            recording['url'],
                            extra_info=recording)
+
+
+def search():
+    query = INTERFACE.keyboard(u"Leita að efni")
+    if not query:
+        index()
+    else:
+        for show in scraper.search(query):
+            INTERFACE.add_item(show['name'],
+                               'play_url',
+                               show['url'],
+                               image=show['img'],
+                               extra_info=show)

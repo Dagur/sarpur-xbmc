@@ -115,3 +115,16 @@ class GUI(object):
         :param message: Message you want to display to the user
         """
         xbmcgui.Dialog().ok(title, message)
+
+    @staticmethod
+    def keyboard(title):
+        """
+        Display a keyboard
+
+        :param title: Name of the modal window
+        :return: User's input or None
+        """
+        keyboard = xbmc.Keyboard('', title)
+        keyboard.doModal()
+        if keyboard.isConfirmed():
+            return unicode(keyboard.getText())

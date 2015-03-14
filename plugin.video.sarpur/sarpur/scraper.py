@@ -3,6 +3,7 @@
 
 import requests
 import time
+import re
 from bs4 import BeautifulSoup
 from datetime import datetime
 
@@ -115,10 +116,50 @@ def get_podcast_episodes(url):
     return (
         {
             'url': item.select('guid')[0].text,
-            'Premiered': parse_pubdate(item.select('pubdate')[0].text.decode('iso-8859-1')).strftime("%d.%m.%Y"),
+            'Premiered': parse_pubdate(item.select('pubdate')[0].text).strftime("%d.%m.%Y"),
             'Duration': item.find('itunes:duration').text.split(':')[0],
             'title': item.title.text,
             'Plot': item.description.text
         }
         for item in doc.find_all("item")
     )
+
+
+def search(query):
+    """
+    Search for media
+
+    :param query: Query string
+    :return: A list of dicts (or empty list)
+    """
+
+    query_url = u"http://ruv.is/slisti/ruv?title={0}".format(query)
+    doc = get_document(query_url)
+
+    items = []
+    pat = re.compile(r'\d{2}.\d{2}.\d{4}')
+
+    for show in doc.find_all("div", class_="views-field views-field-views-conditional"):
+        (img_div, desc_div, info_div) = (tag
+                                         for tag
+                                         in show.find("div", class_="clearfix").children
+                                         if tag.name)
+
+        img = img_div.find("img", title=u"Mynd með færslu")
+
+        try:
+            (episode, total_episodes) =  desc_div.strong.text.split(u' þáttur af ')
+        except (AttributeError, ValueError):
+            episode = total_episodes = None
+
+        items.append({
+            'img':  img and img.get('srcset') or None,
+            'name': desc_div.h3.a.text,
+            'url': u"http://ruv.is{0}".format(desc_div.h3.a['href']),
+            'Episode': episode,
+            'Premiered': pat.search(info_div.text).group(0),
+            'TotalEpisodes': total_episodes,
+            'Plot': desc_div.text.strip()
+        })
+
+    return items

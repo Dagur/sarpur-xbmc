@@ -31,6 +31,8 @@ try:
         actions.play_podcast(action_value, name)
     elif action_key == 'play_live':
         actions.play_live_stream(action_value, name)
+    elif action_key == 'search':
+        actions.search()
     else:
         logger.log("Action: {0}, Value: {1}, Name: {2}".format(
             action_key, action_value, name))
