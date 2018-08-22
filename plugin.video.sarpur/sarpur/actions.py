@@ -58,22 +58,35 @@ def play_video(serie_episode, name):
     Play video give only the filename
 
     :param serie_episode: Colon seperated string containing
-        '{serie_id}:{episode_number}'
+        '{serie_id}:{episode_number}:{file}'
     :param name: Text to display in media player
     :return:
     """
-    serie_id, episode_number = serie_episode.split(':')
+    serie_id, episode_number, filename = serie_episode.split(':')
     episode_number = int(episode_number)
     url = 'https://api.ruv.is/api/programs/program/{0}/all'.format(serie_id)
     r = requests.get(url)
-    episode = [
+    episodes = [
         episode for episode in r.json()['episodes']
         if episode['number'] == episode_number
     ]
-    if len(episode) == 1:
-        player.play(episode[0]['file'], name)
+    if not episodes:
+        # Sometimes we get episodes that have incorrect (?) episode numbers.
+        # We can try to guess using the filename.
+        episodes = [
+            episode for episode in r.json()['episodes']
+            if filename in episode['file']
+        ]
+
+    if len(episodes) == 1:
+        player.play(episodes[0]['file'], name)
     else:
-        GUI.info_box(u'Vesen', u'Fann ekki upptöku')
+        url = u"http://smooth.ruv.cache.is/opid/{0}".format(filename)
+        r = requests.head(url)
+        if r.status_code != 200:
+            url = u"http://smooth.ruv.cache.is/lokad/{0}".format(filename)
+        logger.log('Using legacy play for %s' % (serie_episode, ))
+        player.play(url, name)
 
 
 def play_podcast(url, name):
@@ -186,9 +199,10 @@ def view_category(category_id, date_string):
                                extra_info=meta)
 
         elif ev.get('serie_id') and ev.get('episode_number'):
-            serie_episode = '{0}:{1}'.format(
+            serie_episode = '{0}:{1}:{2}'.format(
                 ev['serie_id'],
-                ev['episode_number']
+                ev['episode_number'],
+                ev['media'],
             )
             INTERFACE.add_item(title,
                                'play_file',
