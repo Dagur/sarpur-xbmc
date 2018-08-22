@@ -74,13 +74,6 @@ def play_video(serie_episode, name):
         player.play(episode[0]['file'], name)
     else:
         GUI.info_box(u'Vesen', u'Fann ekki upptöku')
-    # url = u"http://smooth.ruv.cache.is/opid/{0}".format(file)
-    # r = requests.head(url)
-
-    # if r.status_code != 200:
-    #     url = u"http://smooth.ruv.cache.is/lokad/{0}".format(file)
-
-    # player.play(url, name)
 
 
 def play_podcast(url, name):
