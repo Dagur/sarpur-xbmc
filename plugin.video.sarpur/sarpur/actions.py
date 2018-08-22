@@ -139,8 +139,6 @@ def view_category(category_id, date_string):
         date.strftime("%Y%m%d")
     )
     shows = json.loads(requests.get(url).content)
-    with open('/tmp/t', 'w') as f:
-        f.write(requests.get(url).content)
 
     day_before = date + timedelta(days=-1)
     next_day = date + timedelta(days=1)
