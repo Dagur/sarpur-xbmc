@@ -4,7 +4,7 @@
 import json
 import sarpur
 import requests
-from sarpur import scraper, logger
+from sarpur import scraper, logger  # noqa
 import util.player as player
 from util.gui import GUI
 from datetime import datetime, timedelta
@@ -27,6 +27,7 @@ def index():
     INTERFACE.add_dir(u'Hlaðvarp', 'view_podcast_index', '')
     INTERFACE.add_dir(u'Leita', 'search', '')
 
+
 def live_index():
     """
     List of available live streams
@@ -35,7 +36,8 @@ def live_index():
     INTERFACE.add_item(u'RÚV Íþróttir', 'play_live', '10')
     INTERFACE.add_item(u'RÁS 1', 'play_live', '2')
     INTERFACE.add_item(u'RÁS 2', 'play_live', '3')
-    INTERFACE.add_item(u'Rondó', 'play_live', 'rondo')   
+    INTERFACE.add_item(u'Rondó', 'play_live', 'rondo')
+
 
 def play_url(url, name):
     """
@@ -51,21 +53,34 @@ def play_url(url, name):
         player.play(video_url, name)
 
 
-def play_video(file, name):
+def play_video(serie_episode, name):
     """
     Play video give only the filename
 
-    :param file: Media filename
+    :param serie_episode: Colon seperated string containing
+        '{serie_id}:{episode_number}'
     :param name: Text to display in media player
     :return:
     """
-    url = u"http://smooth.ruv.cache.is/opid/{0}".format(file)
-    r = requests.head(url)
+    serie_id, episode_number = serie_episode.split(':')
+    episode_number = int(episode_number)
+    url = 'https://api.ruv.is/api/programs/program/{0}/all'.format(serie_id)
+    r = requests.get(url)
+    episode = [
+        episode for episode in r.json()['episodes']
+        if episode['number'] == episode_number
+    ]
+    if len(episode) == 1:
+        player.play(episode[0]['file'], name)
+    else:
+        GUI.info_box(u'Vesen', u'Fann ekki upptöku')
+    # url = u"http://smooth.ruv.cache.is/opid/{0}".format(file)
+    # r = requests.head(url)
 
-    if r.status_code != 200:
-        url = u"http://smooth.ruv.cache.is/lokad/{0}".format(file)
+    # if r.status_code != 200:
+    #     url = u"http://smooth.ruv.cache.is/lokad/{0}".format(file)
 
-    player.play(url, name)
+    # player.play(url, name)
 
 
 def play_podcast(url, name):
@@ -119,8 +134,13 @@ def view_category(category_id, date_string):
     if format:
         date = scraper.strptime(date_string, format)
 
-    url = "http://www.ruv.is/sarpur/app/json/{0}/{1}".format(category_id, date.strftime("%Y%m%d"))
+    url = "http://www.ruv.is/sarpur/app/json/{0}/{1}".format(
+        category_id,
+        date.strftime("%Y%m%d")
+    )
     shows = json.loads(requests.get(url).content)
+    with open('/tmp/t', 'w') as f:
+        f.write(requests.get(url).content)
 
     day_before = date + timedelta(days=-1)
     next_day = date + timedelta(days=1)
@@ -137,10 +157,15 @@ def view_category(category_id, date_string):
         end_time = datetime.fromtimestamp(float(ev['end_time']))
         in_progress = showtime <= datetime.now() < end_time
         duration = (end_time - showtime).seconds
+        display_show_time = (
+            in_progress and u"[COLOR blue]Í GANGI[/COLOR]" or
+            showtime.strftime("%H:%M")
+        )
 
         title = u"{1} - {0}".format(
             ev['title'],
-            in_progress and u"[COLOR blue]Í GANGI[/COLOR]" or showtime.strftime("%H:%M"))
+            display_show_time,
+        )
         original_title = ev.get('orginal_title')
         description = ev.get('description', '').strip()
         if original_title and description:
@@ -169,10 +194,14 @@ def view_category(category_id, date_string):
                                image=ev.get('picture'),
                                extra_info=meta)
 
-        elif ev.get('media'):
+        elif ev.get('serie_id') and ev.get('episode_number'):
+            serie_episode = '{0}:{1}'.format(
+                ev['serie_id'],
+                ev['episode_number']
+            )
             INTERFACE.add_item(title,
                                'play_file',
-                               ev.get('media'),
+                               serie_episode,
                                image=ev.get('picture'),
                                extra_info=meta)
         else:
