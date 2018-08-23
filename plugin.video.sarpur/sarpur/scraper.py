@@ -1,14 +1,17 @@
 #!/usr/bin/env python
 # encoding: UTF-8
 
-import requests
 import itertools
 import time
 import re
-from bs4 import BeautifulSoup
 from datetime import datetime
-from urllib import urlencode
+from urllib import urlencode, quote
+
+from bs4 import BeautifulSoup
+import requests
 from sarpur import logger  # noqa
+
+API_PATH = 'https://api.ruv.is/api'
 
 
 def strptime(date_string, format):
@@ -171,6 +174,10 @@ def get_podcast_episodes(url):
     )
 
 
+def api_url(path):
+    return u'{0}{1}'.format(API_PATH, path)
+
+
 def search(query):
     """
     Search for media
@@ -178,41 +185,16 @@ def search(query):
     :param query: Query string
     :return: A list of dicts (or empty list)
     """
-
-    query_url = u"http://ruv.is/slisti/ruv?{0}".format(urlencode({'title': query}))
-    doc = get_document(query_url)
-
-    items = []
-    pat = re.compile(r'\d{2}.\d{2}.\d{4}')
-    shows = doc.find_all(
-        "div",
-        class_="views-field views-field-views-conditional"
+    search_url = api_url(
+        u'/programs/search/tv/{0}'.format(
+            quote(query, safe='')
+        )
     )
 
-    for show in shows:
-        tags = (
-            tag for tag in show.find("div", class_="clearfix").children
-            if tag.name
-        )
-        (img_div, desc_div, info_div) = tags
+    return requests.get(search_url).json()['programs']
 
-        img = img_div.find("img", title=u"Mynd með færslu")
 
-        try:
-            (episode, total_episodes) = desc_div.strong.text.split(
-                u' þáttur af '
-            )
-        except (AttributeError, ValueError):
-            episode = total_episodes = None
+def program_details(program_id):
+    program_url = api_url('/programs/program/{0}/all'.format(program_id))
 
-        items.append({
-            'img': img and img.get('srcset') or None,
-            'name': desc_div.h3.a.text,
-            'url': u"http://ruv.is{0}".format(desc_div.h3.a['href']),
-            'Episode': episode,
-            'Premiered': pat.search(info_div.text).group(0),
-            'TotalEpisodes': total_episodes,
-            'Plot': desc_div.text.strip()
-        })
-
-    return items
+    return requests.get(program_url).json()
