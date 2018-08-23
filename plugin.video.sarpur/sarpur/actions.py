@@ -73,6 +73,8 @@ def view_category(channel, date_string):
 
     :param channel: The channel/radio station
     :param date_string: Display media at this date. Format is %Y%m%d
+
+    TODO: Simplify/extract
     """
 
     if date_string.startswith('<<'):
