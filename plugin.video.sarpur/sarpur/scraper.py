@@ -1,17 +1,16 @@
 #!/usr/bin/env python
 # encoding: UTF-8
-
+'''
+    Long term strategy should probably be to deprecate everything here in favor
+    of api.py.
+'''
 import itertools
 import time
-import re
 from datetime import datetime
-from urllib import urlencode, quote
 
 from bs4 import BeautifulSoup
 import requests
 from sarpur import logger  # noqa
-
-API_PATH = 'https://api.ruv.is/api'
 
 
 def strptime(date_string, format):
@@ -55,25 +54,6 @@ def get_document(url):
     req = requests.get(url)
     doc = BeautifulSoup(req.content, "html.parser")
     return doc
-
-
-def get_media_url(page_url):
-    """
-    Find the url to the MP4/MP3 on a page
-
-    :param page_url: Page to find the url on
-    :return: url
-    """
-
-    doc = get_document(page_url)
-    sources = [tag['jw-src']
-               for tag in doc.find_all('source')
-               if tag.has_attr('jw-src')]
-
-    if len(sources) == 0:
-        return -1
-
-    return u"http://smooth.ruv.cache.is/{0}".format(sources[0][4:])
 
 
 def get_live_url(channel):
@@ -172,29 +152,3 @@ def get_podcast_episodes(url):
         }
         for item in doc.find_all("item")
     )
-
-
-def api_url(path):
-    return u'{0}{1}'.format(API_PATH, path)
-
-
-def search(query):
-    """
-    Search for media
-
-    :param query: Query string
-    :return: A list of dicts (or empty list)
-    """
-    search_url = api_url(
-        u'/programs/search/tv/{0}'.format(
-            quote(query, safe='')
-        )
-    )
-
-    return requests.get(search_url).json()['programs']
-
-
-def program_details(program_id):
-    program_url = api_url('/programs/program/{0}/all'.format(program_id))
-
-    return requests.get(program_url).json()

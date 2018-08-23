@@ -7,7 +7,7 @@ import json
 import requests
 
 import sarpur
-from sarpur import scraper, logger  # noqa
+from sarpur import scraper, api, logger  # noqa
 import util.player as player
 from util.gui import GUI
 
@@ -31,29 +31,15 @@ def index():
     INTERFACE.add_dir(u'Leita', 'search', '')
 
 
-def live_index():
+def view_live_index(action_value, name):
     """
     List of available live streams
     """
-    INTERFACE.add_item(u'RÚV', 'play_live', 'ruv')
-    INTERFACE.add_item(u'RÚV 2', 'play_live', 'ruv2')
-    INTERFACE.add_item(u'RÁS 1', 'play_live', 'ras1')
-    INTERFACE.add_item(u'RÁS 2', 'play_live', 'ras2')
-    INTERFACE.add_item(u'Rondó', 'play_live', 'rondo')
-
-
-def play_url(url, name):
-    """
-    Play media on page (scrapes it to find it)
-
-    :param url: The page url
-    :param name: Text to display in media player
-    """
-    video_url = scraper.get_media_url(url)
-    if video_url == -1:
-        GUI.info_box(u"Vesen", u"Fann ekki upptöku")
-    else:
-        player.play(video_url, name)
+    INTERFACE.add_item(u'RÚV', 'play_live_stream', 'ruv')
+    INTERFACE.add_item(u'RÚV 2', 'play_live_stream', 'ruv2')
+    INTERFACE.add_item(u'RÁS 1', 'play_live_stream', 'ras1')
+    INTERFACE.add_item(u'RÁS 2', 'play_live_stream', 'ras2')
+    INTERFACE.add_item(u'Rondó', 'play_live_stream', 'rondo')
 
 
 def play_video(file, name):
@@ -87,6 +73,8 @@ def view_category(channel, date_string):
 
     :param channel: The channel/radio station
     :param date_string: Display media at this date. Format is %Y%m%d
+
+    TODO: Simplify/extract
     """
 
     if date_string.startswith('<<'):
@@ -121,8 +109,9 @@ def view_category(channel, date_string):
     INTERFACE.add_dir("{0} >>".format((next_day.strftime("%d.%m.%Y"))),
                       'view_category',
                       channel)
-
     for ev in shows['events']:
+        if 'start_time' not in ev:
+            continue
         showtime = scraper.strptime(ev['start_time'], EVENT_DATE_FORMAT)
         end_time = scraper.strptime(ev['end_time'], EVENT_DATE_FORMAT)
         in_progress = showtime <= datetime.now() < end_time
@@ -166,14 +155,14 @@ def view_category(channel, date_string):
 
         if in_progress:
             INTERFACE.add_item(title,
-                               'play_live',
+                               'play_live_stream',
                                channel,
                                image=image,
                                extra_info=meta)
 
         elif is_playable:
             INTERFACE.add_item(title,
-                               'play_file',
+                               'play_video',
                                ev['program']['episodes'][0]['file'],
                                image=image,
                                extra_info=meta)
@@ -185,7 +174,7 @@ def view_category(channel, date_string):
             )
 
 
-def podcast_index():
+def view_podcast_index(action_value, name):
     """
     List all the podcasts.
     """
@@ -196,7 +185,7 @@ def podcast_index():
                           image=show['img'])
 
 
-def podcast_show(url, name):
+def view_podcast_show(url, name):
     """
     List all the recordings in a podcast.
 
@@ -205,17 +194,17 @@ def podcast_show(url, name):
     """
     for recording in scraper.get_podcast_episodes(url):
         INTERFACE.add_item(recording['title'],
-                           'play_file',
+                           'play_video',
                            recording['url'],
                            extra_info=recording)
 
 
-def search():
+def search(action_value, name):
     query = INTERFACE.keyboard(u"Leita að efni")
     if not query:
         index()
     else:
-        for program in scraper.search(query):
+        for program in api.search(query):
             title = program['title'] or program['foreign_title']
             if title:
                 INTERFACE.add_dir(
@@ -226,12 +215,12 @@ def search():
                 )
 
 
-def list_program_episodes(program_id):
-    program = scraper.program_details(program_id)
+def list_program_episodes(program_id, name):
+    program = api.program_details(program_id)
     for episode in program['episodes']:
         INTERFACE.add_item(
             u'{0} - {1}'.format(program['title'], episode['title']),
-            'play_file',
+            'play_video',
             episode['file'],
             image=program.get('image'),
             extra_info={
