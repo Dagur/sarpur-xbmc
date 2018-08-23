@@ -28,7 +28,7 @@ def index():
     INTERFACE.add_dir(u'RÁS 3', 'view_category', 'ras3')
     INTERFACE.add_dir(u'Rondó', 'view_category', 'rondo')
     INTERFACE.add_dir(u'Hlaðvarp', 'view_podcast_index', '')
-    # INTERFACE.add_dir(u'Leita', 'search', '')
+    INTERFACE.add_dir(u'Leita', 'search', '')
 
 
 def live_index():
@@ -215,9 +215,31 @@ def search():
     if not query:
         index()
     else:
-        for show in scraper.search(query):
-            INTERFACE.add_item(show['name'],
-                               'play_url',
-                               show['url'],
-                               image=show['img'],
-                               extra_info=show)
+        for program in scraper.search(query):
+            title = program['title'] or program['foreign_title']
+            if title:
+                INTERFACE.add_dir(
+                    title,
+                    'list_program_episodes',
+                    str(program['id']),
+                    image=program.get('image'),
+                )
+
+
+def list_program_episodes(program_id):
+    program = scraper.program_details(program_id)
+    for episode in program['episodes']:
+        INTERFACE.add_item(
+            u'{0} - {1}'.format(program['title'], episode['title']),
+            'play_file',
+            episode['file'],
+            image=program.get('image'),
+            extra_info={
+                'Episode': program['episodes'][0]['number'],
+                'Premiered': scraper.strptime(
+                    program['episodes'][0]['firstrun'],
+                    '%Y-%m-%d %H:%M:%S',
+                ).strftime('%d.%m.%Y'),
+                'TotalEpisodes': program['web_available_episodes'],
+                'Plot': '\n'.join(program.get('description', []))
+            })

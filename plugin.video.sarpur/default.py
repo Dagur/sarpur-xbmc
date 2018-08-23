@@ -33,6 +33,8 @@ try:
         actions.play_live_stream(action_value, name)
     elif action_key == 'search':
         actions.search()
+    elif action_key == 'list_program_episodes':
+        actions.list_program_episodes(action_value)
     elif action_key == "view_live_index":
         actions.live_index()
     else:
