@@ -7,6 +7,7 @@ import time
 import re
 from bs4 import BeautifulSoup
 from datetime import datetime
+from urllib import urlencode
 from sarpur import logger  # noqa
 
 
@@ -178,7 +179,7 @@ def search(query):
     :return: A list of dicts (or empty list)
     """
 
-    query_url = u"http://ruv.is/slisti/ruv?title={0}".format(query)
+    query_url = u"http://ruv.is/slisti/ruv?{0}".format(urlencode({'title': query}))
     doc = get_document(query_url)
 
     items = []

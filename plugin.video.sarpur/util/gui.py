@@ -152,4 +152,5 @@ class GUI(object):
         keyboard = xbmc.Keyboard('', title)
         keyboard.doModal()
         if keyboard.isConfirmed():
-            return unicode(keyboard.getText())
+            return keyboard.getText().strip()
+

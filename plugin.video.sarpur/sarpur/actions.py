@@ -28,7 +28,7 @@ def index():
     INTERFACE.add_dir(u'RÁS 3', 'view_category', 'ras3')
     INTERFACE.add_dir(u'Rondó', 'view_category', 'rondo')
     INTERFACE.add_dir(u'Hlaðvarp', 'view_podcast_index', '')
-    INTERFACE.add_dir(u'Leita', 'search', '')
+    # INTERFACE.add_dir(u'Leita', 'search', '')
 
 
 def live_index():
