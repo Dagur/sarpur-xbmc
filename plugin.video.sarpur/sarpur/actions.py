@@ -205,7 +205,7 @@ def podcast_show(url, name):
     """
     for recording in scraper.get_podcast_episodes(url):
         INTERFACE.add_item(recording['title'],
-                           'play_video',
+                           'play_file',
                            recording['url'],
                            extra_info=recording)
 
