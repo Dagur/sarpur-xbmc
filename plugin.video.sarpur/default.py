@@ -21,8 +21,6 @@ try:
         actions.view_category(action_value, name)
     elif action_key == 'play_file':
         actions.play_video(action_value, name)
-    elif action_key == 'play_url':
-        actions.play_url(action_value, name)
     elif action_key == 'view_podcast_index':
         actions.podcast_index()
     elif action_key == 'view_podcast_show':

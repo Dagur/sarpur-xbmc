@@ -7,7 +7,7 @@ import json
 import requests
 
 import sarpur
-from sarpur import scraper, logger  # noqa
+from sarpur import scraper, api, logger  # noqa
 import util.player as player
 from util.gui import GUI
 
@@ -40,20 +40,6 @@ def live_index():
     INTERFACE.add_item(u'RÁS 1', 'play_live', 'ras1')
     INTERFACE.add_item(u'RÁS 2', 'play_live', 'ras2')
     INTERFACE.add_item(u'Rondó', 'play_live', 'rondo')
-
-
-def play_url(url, name):
-    """
-    Play media on page (scrapes it to find it)
-
-    :param url: The page url
-    :param name: Text to display in media player
-    """
-    video_url = scraper.get_media_url(url)
-    if video_url == -1:
-        GUI.info_box(u"Vesen", u"Fann ekki upptöku")
-    else:
-        player.play(video_url, name)
 
 
 def play_video(file, name):
@@ -215,7 +201,7 @@ def search():
     if not query:
         index()
     else:
-        for program in scraper.search(query):
+        for program in api.search(query):
             title = program['title'] or program['foreign_title']
             if title:
                 INTERFACE.add_dir(
@@ -227,7 +213,7 @@ def search():
 
 
 def list_program_episodes(program_id):
-    program = scraper.program_details(program_id)
+    program = api.program_details(program_id)
     for episode in program['episodes']:
         INTERFACE.add_item(
             u'{0} - {1}'.format(program['title'], episode['title']),
