@@ -37,7 +37,8 @@ def view_featured(action_value, name):
 
 def view_panel(panel_slug, name):
     for program in api.panel_programs(panel_slug):
-        INTERFACE.add_program_episode(program, program['episodes'][0])
+        if program['episodes']:
+            INTERFACE.add_program_episode(program, program['episodes'][0])
 
 
 def view_categories(action_value, name):
@@ -47,7 +48,8 @@ def view_categories(action_value, name):
 
 def view_category(category_slug, name):
     for program in api.category_programs(category_slug):
-        INTERFACE.add_program_episode(program, program['episodes'][0])
+        if program['episodes']:
+            INTERFACE.add_program_episode(program, program['episodes'][0])
 
 
 def view_live_index(action_value, name):
