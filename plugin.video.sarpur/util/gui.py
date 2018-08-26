@@ -5,6 +5,7 @@ import xbmc
 import xbmcgui
 import xbmcplugin
 from urllib import quote_plus as quote
+import sarpur
 from sarpur import logger
 from util import strptime
 
@@ -160,7 +161,7 @@ class GUI(object):
         context_menu = []
         if program['web_available_episodes'] > 1:
             context_menu.append((
-                u'Skoða þáttaröð',
+                sarpur.getLocalizedString(30910),
                 u'XBMC.Container.Update({0})'.format(
                     self._get_url(
                         'list_program_episodes',
