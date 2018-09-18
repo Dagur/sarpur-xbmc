@@ -21,13 +21,13 @@ def index():
     The front page (i.e. the first one the user sees when opening the plugin)
     """
 
-    INTERFACE.add_dir(u'Beinar útsendingar', 'view_live_index', '')
-    INTERFACE.add_dir(u'Sarpur forsíða', 'view_featured', '')
-    INTERFACE.add_dir(u'Flokkar', 'view_categories', '')
+    INTERFACE.add_dir(sarpur.getLocalizedString(30900), 'view_live_index', '')
+    INTERFACE.add_dir(sarpur.getLocalizedString(30901), 'view_featured', '')
+    INTERFACE.add_dir(sarpur.getLocalizedString(30902), 'view_categories', '')
     INTERFACE.add_dir(u'RÚV', 'view_schedule', 'ruv')
     INTERFACE.add_dir(u'RÚV 2', 'view_schedule', 'ruv2')
-    INTERFACE.add_dir(u'Útvarp', 'view_radio', '')
-    INTERFACE.add_dir(u'Leita', 'search', '')
+    INTERFACE.add_dir(sarpur.getLocalizedString(30903), 'view_radio', '')
+    INTERFACE.add_dir(sarpur.getLocalizedString(30904), 'search', '')
 
 
 def view_featured(action_value, name):
@@ -67,7 +67,11 @@ def view_radio(action_value, name):
     INTERFACE.add_dir(u'RÁS 1', 'view_schedule', 'ras1')
     INTERFACE.add_dir(u'RÁS 2', 'view_schedule', 'ras2')
     INTERFACE.add_dir(u'Rondó', 'view_schedule', 'rondo')
-    INTERFACE.add_dir(u'Hlaðvarp', 'view_podcast_index', '')
+    INTERFACE.add_dir(
+        sarpur.getLocalizedString(30905),
+        'view_podcast_index',
+        ''
+    )
 
 
 def play_video(file, name):
@@ -90,7 +94,10 @@ def play_live_stream(channel, name):
     """
     url = scraper.get_live_url(channel)
     if url == -1:
-        GUI.info_box(u"Vesen", u"Fann ekki straum")
+        GUI.info_box(
+            sarpur.getLocalizedString(30906),
+            sarpur.getLocalizedString(30907),
+        )
     else:
         player.play(url, name, live=True)
 
@@ -124,9 +131,15 @@ def view_schedule(channel, date_string):
 
     if 'error' in shows:
         if 'message' in shows:
-            GUI.info_box(u"Vesen", shows['error']['message'])
+            GUI.info_box(
+                sarpur.getLocalizedString(30906),
+                shows['error']['message'],
+            )
         else:
-            GUI.info_box(u"Vesen", json.dumps(shows['error']))
+            GUI.info_box(
+                sarpur.getLocalizedString(30906),
+                json.dumps(shows['error']),
+            )
         return
 
     day_before = date + timedelta(days=-1)
@@ -144,8 +157,11 @@ def view_schedule(channel, date_string):
         end_time = strptime(ev['end_time'], EVENT_DATE_FORMAT)
         in_progress = showtime <= datetime.now() < end_time
         duration = (end_time - showtime).seconds
+        in_progress_str = u"[COLOR blue]%s[/COLOR]" % (
+            sarpur.getLocalizedString(30908),
+        )
         display_show_time = (
-            in_progress and u"[COLOR blue]Í GANGI[/COLOR]" or
+            in_progress and in_progress_str or
             showtime.strftime("%H:%M")
         )
 
@@ -228,7 +244,7 @@ def view_podcast_show(url, name):
 
 
 def search(action_value, name):
-    query = INTERFACE.keyboard(u"Leita að efni")
+    query = INTERFACE.keyboard(sarpur.getLocalizedString(30909))
     if not query:
         index()
     else:
