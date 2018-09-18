@@ -5,7 +5,8 @@ import xbmc
 import xbmcgui
 import xbmcplugin
 from urllib import quote_plus as quote
-from sarpur import logger
+import sarpur
+from sarpur import logger  # noqa
 from util import strptime
 
 
@@ -22,18 +23,6 @@ class GUI(object):
         """
         self.addon_handle = addon_handle
         self.base_url = base_url
-        self.set_view_mode()
-
-    def set_view_mode(self):
-        # Common container IDs. (Used to set the default view in Kodi)
-
-        skin_used = xbmc.getSkinDir()
-        logger.log(skin_used)
-        if skin_used == u'skin.confluence':
-            logger.log("Set view mode")
-            xbmc.executebuiltin(
-                'Container.SetViewMode({0})'.format(504)
-            )
 
     def _get_url(self, action_key, action_value, name):
 
@@ -160,7 +149,7 @@ class GUI(object):
         context_menu = []
         if program['web_available_episodes'] > 1:
             context_menu.append((
-                u'Skoða þáttaröð',
+                sarpur.getLocalizedString(30910),
                 u'XBMC.Container.Update({0})'.format(
                     self._get_url(
                         'list_program_episodes',
