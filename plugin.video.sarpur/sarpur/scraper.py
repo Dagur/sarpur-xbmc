@@ -115,7 +115,7 @@ def get_podcast_episodes(url):
         date = None
         while date is None:
             try:
-                date = strptime(date_string, next(df_generator))
+                date = datetime.strptime(date_string, next(df_generator))
             except ValueError:
                 pass
             except StopIteration:

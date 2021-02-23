@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.sarpur"
        name="Sarpur"
-       version="4.5.0"
+       version="5.0"
        provider-name="Dagur Páll Ammendrup">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
@@ -23,8 +23,9 @@
         <website>https://github.com/Dagur/sarpur-xbmc</website>
         <source>https://github.com/Dagur/sarpur-xbmc</source>
         <email></email>
-        <news>Version 4.5 (2021-02-23)
+        <news>Version 5.0 (2021-02-23)
 - Upgraded to Python 3 for Kodi 19 compatibility
+- Fixed podcast scraping
 
 Version 4.4
 - Add subtitles when available to playable list items
