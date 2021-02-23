@@ -62,9 +62,8 @@ class GUI(object):
         :param selectable: Default True.
 
         """
-        list_item = xbmcgui.ListItem(name,
-                                     iconImage=image,
-                                     thumbnailImage='')
+        list_item = xbmcgui.ListItem(name)
+        list_item.setArt({"icon": image, "thumbnail": ""})
         if selectable:
             url = self._get_url(action_key, action_value, name)
             list_item.setProperty('IsPlayable', 'true')
