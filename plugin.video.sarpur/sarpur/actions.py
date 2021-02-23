@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # encoding: UTF-8
 
+from __future__ import absolute_import
 from datetime import datetime, timedelta
 import json
 
@@ -24,8 +25,8 @@ def index():
     INTERFACE.add_dir(sarpur.getLocalizedString(30900), 'view_live_index', '')
     INTERFACE.add_dir(sarpur.getLocalizedString(30901), 'view_featured', '')
     INTERFACE.add_dir(sarpur.getLocalizedString(30902), 'view_categories', '')
-    INTERFACE.add_dir(u'RÚV', 'view_schedule', 'ruv')
-    INTERFACE.add_dir(u'RÚV 2', 'view_schedule', 'ruv2')
+    INTERFACE.add_dir('RÚV', 'view_schedule', 'ruv')
+    INTERFACE.add_dir('RÚV 2', 'view_schedule', 'ruv2')
     INTERFACE.add_dir(sarpur.getLocalizedString(30903), 'view_radio', '')
     INTERFACE.add_dir(sarpur.getLocalizedString(30904), 'search', '')
 
@@ -56,17 +57,17 @@ def view_live_index(action_value, name):
     """
     List of available live streams
     """
-    INTERFACE.add_item(u'RÚV', 'play_live_stream', 'ruv')
-    INTERFACE.add_item(u'RÚV 2', 'play_live_stream', 'ruv2')
-    INTERFACE.add_item(u'RÁS 1', 'play_live_stream', 'ras1')
-    INTERFACE.add_item(u'RÁS 2', 'play_live_stream', 'ras2')
-    INTERFACE.add_item(u'Rondó', 'play_live_stream', 'rondo')
+    INTERFACE.add_item('RÚV', 'play_live_stream', 'ruv')
+    INTERFACE.add_item('RÚV 2', 'play_live_stream', 'ruv2')
+    INTERFACE.add_item('RÁS 1', 'play_live_stream', 'ras1')
+    INTERFACE.add_item('RÁS 2', 'play_live_stream', 'ras2')
+    INTERFACE.add_item('Rondó', 'play_live_stream', 'rondo')
 
 
 def view_radio(action_value, name):
-    INTERFACE.add_dir(u'RÁS 1', 'view_schedule', 'ras1')
-    INTERFACE.add_dir(u'RÁS 2', 'view_schedule', 'ras2')
-    INTERFACE.add_dir(u'Rondó', 'view_schedule', 'rondo')
+    INTERFACE.add_dir('RÁS 1', 'view_schedule', 'ras1')
+    INTERFACE.add_dir('RÁS 2', 'view_schedule', 'ras2')
+    INTERFACE.add_dir('Rondó', 'view_schedule', 'rondo')
     INTERFACE.add_dir(
         sarpur.getLocalizedString(30905),
         'view_podcast_index',
@@ -144,7 +145,7 @@ def view_schedule(channel, date_string):
 
     day_before = date + timedelta(days=-1)
     next_day = date + timedelta(days=1)
-    INTERFACE.add_dir(u"<< {0}".format(day_before.strftime("%d.%m.%Y")),
+    INTERFACE.add_dir("<< {0}".format(day_before.strftime("%d.%m.%Y")),
                       'view_schedule',
                       channel)
     INTERFACE.add_dir("{0} >>".format((next_day.strftime("%d.%m.%Y"))),
@@ -157,7 +158,7 @@ def view_schedule(channel, date_string):
         end_time = strptime(ev['end_time'], EVENT_DATE_FORMAT)
         in_progress = showtime <= datetime.now() < end_time
         duration = (end_time - showtime).seconds
-        in_progress_str = u"[COLOR blue]%s[/COLOR]" % (
+        in_progress_str = "[COLOR blue]%s[/COLOR]" % (
             sarpur.getLocalizedString(30908),
         )
         display_show_time = (
@@ -165,20 +166,20 @@ def view_schedule(channel, date_string):
             showtime.strftime("%H:%M")
         )
 
-        title = u"{1} - {0}".format(
+        title = "{1} - {0}".format(
             ev['title'],
             display_show_time,
         )
         original_title = ev.get('orginal_title')
         description = '\n'.join(ev.get('description', []))
         if original_title and description:
-            plot = u"{0} - {1}".format(original_title, description)
+            plot = "{0} - {1}".format(original_title, description)
         elif description:
             plot = description
         elif original_title:
             plot = original_title
         else:
-            plot = u""
+            plot = ""
 
         image = ev.get('image', ev.get('default_image'))
         meta = {

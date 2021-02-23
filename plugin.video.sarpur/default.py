@@ -1,15 +1,16 @@
 #!/usr/bin/env python
 # encoding: UTF-8
 
+from __future__ import absolute_import
 import sys
-import urlparse
+import urllib.parse
 import sarpur
 import xbmcplugin
 from sarpur import actions, logger
 
 xbmcplugin.setContent(sarpur.ADDON_HANDLE, 'episodes')
 
-params = dict(urlparse.parse_qsl(sys.argv[2][1:]))
+params = dict(urllib.parse.parse_qsl(sys.argv[2][1:]))
 action_key = params.get("action_key")
 action_value = params.get("action_value")
 name = params.get("name")

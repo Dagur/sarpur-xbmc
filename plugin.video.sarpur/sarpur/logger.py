@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # encoding: UTF-8
 
+from __future__ import absolute_import
 import xbmc
 import sarpur
 

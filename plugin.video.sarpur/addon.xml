@@ -4,7 +4,7 @@
        version="4.5.0"
        provider-name="Dagur Páll Ammendrup">
     <requires>
-        <import addon="xbmc.python" version="2.14.0"/>
+        <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.beautifulsoup4" version="4.3.2"/>
         <import addon="script.module.simplejson" version="2.0.10"/>
         <import addon="script.module.requests" version="2.3.0"/>
@@ -23,5 +23,35 @@
         <website>https://github.com/Dagur/sarpur-xbmc</website>
         <source>https://github.com/Dagur/sarpur-xbmc</source>
         <email></email>
+        <news>Version 4.5 (2021-02-23)
+- Upgraded to Python 3 for Kodi 19 compatibility
+
+Version 4.4
+- Add subtitles when available to playable list items
+
+Version 4.3.1
+- Handle error when program title missing
+
+Version 4.3.0
+- Add featured and categories. Add context menu.
+- Only display program episode if program has episodes
+- Localization
+
+Version 4.2.0
+- Use streams instead of direct URLs (sindrig)
+- Fixed search (sindrig)
+
+Version 4.1.0
+- Fixed the podcast index
+- Fixed duration times
+- Fixed live streams
+- Added a live stream menu
+
+Version 4.0.0
+- Rewritten in large part because of ruv.is website redesign
+- Now uses TV schedule format instead of groups
+- Better information about shows (duration, plot, episode number etc.)
+- Search feature
+- Much better podcast support</news>
     </extension>
 </addon>

@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # encoding: UTF-8
 
-from urllib import quote
+from __future__ import absolute_import
+from urllib.parse import quote
 
 import requests
 from sarpur import logger  # noqa
@@ -10,7 +11,7 @@ API_PATH = 'https://api.ruv.is/api'
 
 
 def api_url(path):
-    return u'{0}{1}'.format(API_PATH, path)
+    return '{0}{1}'.format(API_PATH, path)
 
 
 def search(query):
@@ -21,7 +22,7 @@ def search(query):
     :return: A list of dicts (or empty list)
     """
     search_url = api_url(
-        u'/programs/search/tv/{0}'.format(
+        '/programs/search/tv/{0}'.format(
             quote(query, safe='')
         )
     )

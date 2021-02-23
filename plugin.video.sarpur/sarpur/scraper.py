@@ -4,6 +4,7 @@
     Long term strategy should probably be to deprecate everything here in favor
     of api.py.
 '''
+from __future__ import absolute_import
 import itertools
 from datetime import datetime
 
@@ -114,7 +115,7 @@ def get_podcast_episodes(url):
         date = None
         while date is None:
             try:
-                date = strptime(date_string, df_generator.next())
+                date = strptime(date_string, next(df_generator))
             except ValueError:
                 pass
             except StopIteration:

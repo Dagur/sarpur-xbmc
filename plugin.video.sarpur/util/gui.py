@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # encoding: UTF-8
 
+from __future__ import absolute_import
 import xbmc
 import xbmcgui
 import xbmcplugin
-from urllib import quote_plus as quote
+from urllib.parse import quote_plus as quote
 import sarpur
 from sarpur import logger  # noqa
 from util import strptime
@@ -130,7 +131,7 @@ class GUI(object):
         )
 
     def add_unselectable_item(self, name, image, extra_info=None):
-        unselectable_name = u'[COLOR red]{0}[/COLOR]'.format(name)
+        unselectable_name = '[COLOR red]{0}[/COLOR]'.format(name)
         self._add_dir(
             name=unselectable_name,
             image=image,
@@ -150,7 +151,7 @@ class GUI(object):
 
     def add_program_episode(self, program, episode):
         if episode['title'] and program['title']:
-            title = u'{0} - {1}'.format(program['title'], episode['title'])
+            title = '{0} - {1}'.format(program['title'], episode['title'])
         elif episode['title']:
             title = episode['title']
         else:
@@ -159,7 +160,7 @@ class GUI(object):
         if program['web_available_episodes'] > 1:
             context_menu.append((
                 sarpur.getLocalizedString(30910),
-                u'XBMC.Container.Update({0})'.format(
+                'XBMC.Container.Update({0})'.format(
                     self._get_url(
                         'list_program_episodes',
                         str(program['id']),
