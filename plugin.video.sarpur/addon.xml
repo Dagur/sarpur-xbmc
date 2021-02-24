@@ -19,9 +19,9 @@
         <platform>all</platform>
         <language>is</language>
         <license>MIT</license>
-        <forum>http://spjall.vaktin.is/viewtopic.php?p=538688</forum>
+        <forum>https://spjall.vaktin.is/viewtopic.php?p=538688</forum>
         <website>https://github.com/Dagur/sarpur-xbmc</website>
-        <source>https://github.com/Dagur/sarpur-xbmc.git</source>
+        <source>https://github.com/Dagur/sarpur-xbmc</source>
         <email></email>
     </extension>
 </addon>
