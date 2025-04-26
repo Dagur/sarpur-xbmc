@@ -26,7 +26,7 @@ def search(query, type="tv"):
     gql = {
         "operationName": "getSearch",
         "variables": f'{{"type":"{type}","text":"{query}"}}',
-        "extensions": '{"persistedQuery":{"version":1,"sha256Hash":"99be6d8b3c99b265086df4b6d87e72d005bdbf1cf0d50173610632bc0ecf7ff5"}}',
+        "extensions": '{"persistedQuery":{"version":1,"sha256Hash":"823f9e99e09dadeca8896ea9f29374429e6fc3c4be2d2c2a93e7ce6dc65eec41"}}',
     }
     req = requests.get(GRAPHQL_URL, headers={"Content-Type": "text/plain"}, params=gql)
     return req.json()["data"]["Search"]
